@@ -1,0 +1,28 @@
+<Window
+  x:Class="GHelper.WPF.MainWindow"
+  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Title="G-Helper WPF"
+  Width="520"
+  Height="260"
+  ResizeMode="CanMinimize"
+  WindowStartupLocation="CenterScreen">
+
+  <StackPanel Margin="20">
+    <TextBlock
+      Margin="0,0,0,4"
+      FontSize="18"
+      FontWeight="SemiBold"
+      Text="G-Helper.WPF shell" />
+    <TextBlock
+      Margin="0,0,0,16"
+      Foreground="Gray"
+      Text="Minimal head. Proves GHelper.Shared loads and runs from this process."
+      TextWrapping="Wrap" />
+
+    <TextBlock Name="SharedAssemblyText" Margin="0,0,0,6" />
+    <TextBlock Name="LogPathText" Margin="0,0,0,6" TextWrapping="Wrap" />
+    <TextBlock Name="RunningAsSystemText" Margin="0,0,0,6" />
+    <TextBlock Name="GpuStatusText" TextWrapping="Wrap" />
+  </StackPanel>
+</Window>

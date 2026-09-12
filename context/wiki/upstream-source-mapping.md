@@ -31,13 +31,19 @@ Verified 2026-09-12:
 
 ## Current Mapping State
 
-`G-Helper.Shared` does not exist yet. Until Milestone 2 Story 5 extracts it, **every upstream file maps 1:1 to the same path in this fork** — no source file has been moved, split, or renamed.
+`GHelper.Shared` now exists, but Milestone 2 Story 5's extraction is only partially done. **Every upstream path not listed below still maps 1:1 to the same path in this fork** — the absence of a row means "unchanged, same path".
 
 | Upstream path | Fork path | Status |
 | --- | --- | --- |
-| `app/**` | `app/**` | Identical |
+| `app/Helpers/Logger.cs` | `GHelper.Shared/Helpers/Logger.cs` | Moved. One line changed: the SYSTEM check now calls `UserIdentity` instead of `ProcessHelper`. |
+| `app/Helpers/DeviceHelper.cs` | `GHelper.Shared/Helpers/DeviceHelper.cs` | Moved unchanged. |
+| `app/Helpers/Keystone.cs` | `GHelper.Shared/Helpers/Keystone.cs` | Moved unchanged. |
+| `app/Helpers/ProcessHelper.cs` | `app/Helpers/ProcessHelper.cs` + `GHelper.Shared/Helpers/UserIdentity.cs` | Split. `IsRunningAsSystem` / `IsUserAdministrator` implementations moved to `UserIdentity`; `ProcessHelper` keeps one-line delegating members so upstream call sites still resolve. The rest of `ProcessHelper` stays in `app/` because it uses WinForms `Application` and `MessageBox`. |
+| `app/GHelper.sln` | `app/GHelper.sln` (unchanged) + `G-Helper.WPF.sln` | Supplemented. The upstream solution is untouched and still builds the WinForms head alone; the new root solution builds all three projects. |
 
-Top-level `app/` folders as they currently stand: `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Helpers/`, `Input/`, `Mode/`, `Overlay/`, `Pawn/`, `Peripherals/`, `Properties/`, `Resources/`, `UI/`, `USB/`.
+Top-level `app/` folders as they currently stand: `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Helpers/`, `Input/`, `Mode/`, `Overlay/`, `Pawn/`, `Peripherals/`, `Properties/`, `Resources/`, `UI/`, `USB/` — all still present.
+
+New fork-only paths with no upstream counterpart: `GHelper.Shared/` and `GHelper.WPF/`.
 
 ## What This Page Will Track
 

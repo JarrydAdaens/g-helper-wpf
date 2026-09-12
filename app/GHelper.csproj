@@ -37,6 +37,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\GHelper.Shared\GHelper.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FftSharp" Version="2.2.0" />
     <PackageReference Include="HidSharpCore" Version="1.3.0" />
     <PackageReference Include="NAudio.Wasapi" Version="2.3.0" />

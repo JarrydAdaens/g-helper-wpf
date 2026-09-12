@@ -12,7 +12,9 @@ metadata:
 
 [Back to Wiki Home](home.md)
 
-A snapshot of `app/`'s current layout, taken at Milestone 1 close, before Milestone 2 Story 5 extracts `G-Helper.Shared`. This is a rough first read to seed that planning — not a verified extraction boundary. Confirm against actual code before relying on any "looks shared" / "looks UI" call below.
+A snapshot of `app/`'s current layout, taken at Milestone 1 close, before Milestone 2 Story 5 extracts `GHelper.Shared`. This is a rough first read to seed that planning — not a verified extraction boundary. Confirm against actual code before relying on any "looks shared" / "looks UI" call below.
+
+> Extraction has since started. For what has actually moved out of `app/`, see [upstream-source-mapping.md](upstream-source-mapping.md); this page is not maintained as files move.
 
 ## Top-Level Folders
 

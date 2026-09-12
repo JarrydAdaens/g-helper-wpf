@@ -10,13 +10,9 @@ namespace GHelper.Helpers
         private static EventWaitHandle? exitEvent;
         private static long lastAdmin;
 
-        private static readonly Lazy<bool> _isSystem = new Lazy<bool>(() =>
-        {
-            using var identity = WindowsIdentity.GetCurrent();
-            return identity.IsSystem;
-        }, LazyThreadSafetyMode.ExecutionAndPublication);
-
-        public static bool IsRunningAsSystem() => _isSystem.Value;
+        // Identity checks moved to GHelper.Shared; kept here so existing call sites are untouched
+        // while the rest of ProcessHelper still depends on WinForms.
+        public static bool IsRunningAsSystem() => UserIdentity.IsRunningAsSystem();
 
         public static void CheckAlreadyRunning()
         {
@@ -101,12 +97,7 @@ namespace GHelper.Helpers
                 ThreadPool.RegisterWaitForSingleObject(exitEvent, (_, _) => Application.Exit(), null, Timeout.Infinite, true);
         }
 
-        public static bool IsUserAdministrator()
-        {
-            using WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
+        public static bool IsUserAdministrator() => UserIdentity.IsUserAdministrator();
 
         public static void RunAsAdmin(string? param = null, bool force = false)
         {

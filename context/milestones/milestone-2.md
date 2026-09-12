@@ -33,7 +33,7 @@ Separate reusable G-Helper logic from the WinForms front end into a shared libra
 
 ## Status
 
-Not Started — 0/3 stories complete. Depends on Milestone 1 Story 3 (validated baseline) being complete first.
+In Progress — 0/3 stories complete. Story 5 and Story 6 have both started; Story 7 is holding. The first extraction slice and a minimal WPF shell have landed and both heads build and launch, but the bulk of the shared-logic extraction is still ahead.
 
 ---
 
@@ -41,9 +41,9 @@ Not Started — 0/3 stories complete. Depends on Milestone 1 Story 3 (validated 
 
 | # | Story | Type | Complexity | Effort | Risk | Plan | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | *not yet generated* | Not Started |
-| 6 | [Create G-Helper.WPF](#story-6) | Feature | — | — | — | *not yet generated* | Not Started |
-| 7 | [Preserve WinForms baseline during the split](#story-7) | Refactor | — | — | — | *not yet generated* | Not Started |
+| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 1 of N) |
+| 6 | [Create G-Helper.WPF](#story-6) | Feature | — | — | — | [plan](../implementation-plans/milestone-2/create-ghelper-wpf/plan.md) | In Progress (shell only) |
+| 7 | [Preserve WinForms baseline during the split](#story-7) | Refactor | — | — | — | *not yet generated* | In Progress (continuous, holding) |
 
 ---
 
@@ -72,7 +72,16 @@ New shared class-library project; incremental moves out of `app/AppConfig.cs`, `
 
 **Plan:** `../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md`
 
-**Status:** Not Started
+**Status:** In Progress — slice 1 of an unknown number landed.
+
+**Moved so far:** `GHelper.Shared` project created (`net10.0-windows`, x64, no `UseWindowsForms`/`UseWPF`) and referenced by `app/GHelper.csproj`. Moved into it: `Helpers/Logger.cs`, `Helpers/DeviceHelper.cs`, `Helpers/Keystone.cs`. Added `Helpers/UserIdentity.cs`, holding the `IsRunningAsSystem` / `IsUserAdministrator` implementations lifted out of `app/Helpers/ProcessHelper.cs`, which now delegates to it.
+
+**Still to do (everything else):** `AppConfig.cs`, `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Mode/`, `Pawn/`, `Peripherals/`, `USB/` folders. Two files gate most of this and should lead the next slice:
+
+- `app/AppConfig.cs` reads `Application.StartupPath` (WinForms) and references `AsusACPI` and `GHelper.Mode`. Almost every candidate module depends on it.
+- `app/Helpers/ProcessHelper.cs` still uses `MessageBox`, `Application.Exit`, and `Application.ExecutablePath` in `CheckAlreadyRunning` and `RunAsAdmin`. Those two members are genuinely head-specific; the remaining process utilities are not and can move once the type is split.
+
+`Peripherals/` and `Pawn/` are the cleanest large modules to move after that — `Pawn/` has zero UI references, and `Peripherals/` has them in only one of its 41 files (`PeripheralsProvider.cs`).
 
 ---
 
@@ -99,7 +108,11 @@ New WPF project in the solution; reference to the Story 5 shared project; minima
 
 **Plan:** `../implementation-plans/milestone-2/create-ghelper-wpf/plan.md`
 
-**Status:** Not Started
+**Status:** In Progress — shell only, tray infrastructure not started.
+
+**Done:** `GHelper.WPF` project exists (`net10.0-windows`, x64, `UseWPF`), references `GHelper.Shared`, builds, launches, and shows a single placeholder window that reads the shared assembly identity, log path, `UserIdentity.IsRunningAsSystem()`, and `DeviceHelper.GetGpuError()` — verifying shared services initialise from this second process.
+
+**Still to do:** tray-icon bootstrap and tray-resident lifetime (show/hide, context menu, single-instance handling), an application icon and manifest, and initialising real shared services rather than the four read-only probes currently on the window.
 
 ---
 
@@ -126,7 +139,9 @@ Ongoing verification alongside Story 5/6 work rather than a single discrete chan
 
 **Plan:** `../implementation-plans/milestone-2/preserve-winforms-baseline-during-the-split/plan.md`
 
-**Status:** Not Started
+**Status:** In Progress — continuous constraint, holding after slice 1.
+
+Verified after the first extraction slice: `dotnet build app\GHelper.sln -c Debug` succeeds with 0 warnings / 0 errors, and the launched app shows its normal panel with live sensor readings and writes to the shared log as before.
 
 ---
 
@@ -146,7 +161,7 @@ Ongoing verification alongside Story 5/6 work rather than a single discrete chan
 
 ## Deferred / Follow-up Work
 
-- The exact final project/namespace names for the shared library and WPF head are not fixed; the design document notes they may change during implementation (see [design.md](../design.md#how-the-pieces-fit-together)).
+- **Resolved:** the project names are `GHelper.Shared` and `GHelper.WPF`, at the repository root beside `app/`, with a new root `G-Helper.WPF.sln` covering all three projects and `app/GHelper.sln` left untouched. Rationale recorded in [design.md](../design.md#how-the-pieces-fit-together).
 - Establishing a concrete testing policy (currently undefined in Design) is a natural follow-up once Story 5 creates a UI-independent seam to test against.
 
 ---

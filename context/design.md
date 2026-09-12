@@ -41,7 +41,7 @@ The backlog (`backlog/`) is not a numbered tier. It is a staging pool — inform
 | Milestone | Document | Status | Why it matters | What it unlocks |
 | --- | --- | --- | --- | --- |
 | Milestone 1: Repository and Context Setup | [milestones/milestone-1.md](milestones/milestone-1.md) | Complete | Nothing later can be trusted without a validated baseline and durable upstream-sync rules | A known-good starting point and a repeatable process for absorbing future upstream `G-Helper` changes |
-| Milestone 2: WPF Conversion and Architectural Split | [milestones/milestone-2.md](milestones/milestone-2.md) | Not Started | The WinForms/business-logic split is the load-bearing architectural change everything else depends on | A working, empty `G-Helper.WPF` executable head referencing shared logic, with the WinForms app still intact |
+| Milestone 2: WPF Conversion and Architectural Split | [milestones/milestone-2.md](milestones/milestone-2.md) | In Progress | The WinForms/business-logic split is the load-bearing architectural change everything else depends on | A working, empty `G-Helper.WPF` executable head referencing shared logic, with the WinForms app still intact |
 | Milestone 3: WPF Equivalence and Product Changes | [milestones/milestone-3.md](milestones/milestone-3.md) | Not Started | This is where the WPF app actually becomes daily-usable and the ROG Ally overlay/binding vision is delivered | The V1 release: WPF feature parity, the left-side overlay shell, and the generalised gamepad/keyboard/mouse binding system |
 
 Keep this index in sync as milestones are added, completed, reordered, or reclassified. When a backlog story scores as epic-sized, promote it into this index as a new milestone.
@@ -93,7 +93,11 @@ G-Helper (solution)
     └── references G-Helper.Shared
 ```
 
-`G-Helper.Shared` does not exist yet as a separate project; today all logic and UI live together in the single `app/` WinForms project (`app/GHelper.csproj`). Milestone 2 Story 5 is the extraction of this shared layer out of `app/`, done incrementally rather than as a single rewrite. Exact project names may change during extraction; the constraint that does not change is that UI-specific code must not leak into the shared layer.
+**Resolved naming (Milestone 2, first extraction slice).** The component names above are product names; the concrete MSBuild projects are `GHelper.Shared/GHelper.Shared.csproj` and `GHelper.WPF/GHelper.WPF.csproj`, sitting as siblings of `app/` at the repository root. The hyphenated spelling is not usable for assemblies or namespaces, and the existing head already ships as `GHelper`, so the unhyphenated form keeps all three consistent. Both new projects target `net10.0-windows` on `x64` to match `app/GHelper.csproj`. `GHelper.Shared` deliberately sets neither `UseWindowsForms` nor `UseWPF`, which is what mechanically enforces the "no UI in the shared layer" constraint.
+
+**Solutions.** `app/GHelper.sln` is an upstream-owned file and is left untouched, so it still builds the WinForms head alone and does not become a recurring merge conflict. A new root-level `G-Helper.WPF.sln` references all three projects and is the solution to build when you want everything.
+
+Milestone 2 Story 5 is the extraction of the shared layer out of `app/`, done incrementally rather than as a single rewrite; as of the first slice it holds only logging, Windows-identity, and display-device helpers. The constraint that does not change is that UI-specific code must not leak into the shared layer.
 
 **External services and dependencies (as currently understood from the existing `app/` source, not yet fully re-verified against the extracted Shared layer):**
 
@@ -106,6 +110,9 @@ G-Helper (solution)
 
 ```text
 g-helper-wpf/
+|-- G-Helper.WPF.sln            root solution covering all three projects
+|-- GHelper.Shared/             reusable, UI-independent logic (extraction in progress)
+|-- GHelper.WPF/                new WPF executable head (minimal shell)
 |-- app/                        existing WinForms executable head (GHelper.csproj / GHelper.sln)
 |   |-- Ally/                   ROG Ally-specific behaviour (touch keyboard gesture, etc.)
 |   |-- Input/                  controller/input handling
@@ -128,7 +135,7 @@ g-helper-wpf/
 `-- README.md
 ```
 
-`G-Helper.Shared` and `G-Helper.WPF` do not exist yet; they are created by Milestone 2 (Story 5 and Story 6 respectively) alongside `app/`, which keeps its current role as the WinForms head until that milestone's extraction work lands.
+`GHelper.Shared/` and `GHelper.WPF/` were created by Milestone 2 (Story 5 and Story 6 respectively) alongside `app/`, which keeps its current role as the WinForms head. Both are still early: `GHelper.Shared` holds only the first extraction slice, and `GHelper.WPF` is a single placeholder window with no tray infrastructure yet.
 
 ---
 
@@ -180,9 +187,9 @@ No secrets or external-service credentials are known to be part of this applicat
 
 ## Application Layers
 
-### G-Helper.Shared (target, not yet extracted)
+### G-Helper.Shared (`GHelper.Shared`, extraction in progress)
 
-UI-independent hardware communication, device services, power/fan/battery/RGB logic, controller/input handling, and configuration. Consumed by both executable heads.
+Target scope: UI-independent hardware communication, device services, power/fan/battery/RGB logic, controller/input handling, and configuration, consumed by both executable heads. Currently extracted: `Logger`, `UserIdentity`, `DeviceHelper`, and `Keystone`. Everything else still lives in `app/`, most of it blocked behind `AppConfig` (which uses WinForms `Application.StartupPath`) and `ProcessHelper` (which uses `MessageBox`/`Application.Exit`).
 
 ### G-Helper (existing WinForms head)
 
@@ -204,7 +211,7 @@ No specific security or privacy requirements have been identified beyond what th
 
 ### Logging
 
-The existing application has a `Logger.cs` helper (`app/Helpers/Logger.cs`); behaviour and destination not yet re-documented here.
+Logging goes through `GHelper.Shared/Helpers/Logger.cs` (moved out of `app/Helpers/` in Milestone 2). It appends to `%APPDATA%\GHelper\log.txt`, or `%PROGRAMDATA%\GHelper\log.txt` when running as SYSTEM, trimming the file to its last 2000 lines occasionally. Both executable heads share that single file, so do not run them at the same time.
 
 ### Debugging
 
