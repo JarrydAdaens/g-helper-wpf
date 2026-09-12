@@ -41,7 +41,7 @@ In Progress — 1/3 stories complete. Story 6 (the WPF head) is done: it builds,
 
 | # | Story | Type | Complexity | Effort | Risk | Plan | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 1 of N) |
+| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 2 of N) |
 | 6 | [Create G-Helper.WPF](#story-6) | Feature | — | — | — | [plan](../implementation-plans/milestone-2/create-ghelper-wpf/plan.md) | Complete |
 | 7 | [Preserve WinForms baseline during the split](#story-7) | Refactor | — | — | — | *not yet generated* | In Progress (continuous, holding) |
 
@@ -72,14 +72,13 @@ New shared class-library project; incremental moves out of `source/app/AppConfig
 
 **Plan:** `../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md`
 
-**Status:** In Progress — slice 1 of an unknown number landed.
+**Status:** In Progress — slice 2 of an unknown number landed.
 
-**Moved so far:** `GHelper.Shared` project created (`net10.0-windows`, x64, no `UseWindowsForms`/`UseWPF`) and referenced by `source/app/GHelper.csproj`. Moved into it: `Helpers/Logger.cs`, `Helpers/DeviceHelper.cs`, `Helpers/Keystone.cs`. Added `Helpers/UserIdentity.cs`, holding the `IsRunningAsSystem` / `IsUserAdministrator` implementations lifted out of `source/app/Helpers/ProcessHelper.cs`, which now delegates to it.
+**Moved so far:** `GHelper.Shared` project created (`net10.0-windows`, x64, no `UseWindowsForms`/`UseWPF`) and referenced by `source/app/GHelper.csproj`. Moved into it: `Helpers/Logger.cs`, `Helpers/DeviceHelper.cs`, `Helpers/Keystone.cs`. `source/app/Helpers/ProcessHelper.cs` has been fully split: `Helpers/UserIdentity.cs` (slice 1) holds `IsRunningAsSystem` / `IsUserAdministrator`, and `Helpers/ProcessUtility.cs` (slice 2) holds the remaining process/service utilities (`KillByName`, `KillSmartDisplayControl`, `KillByProcess`, `StopDisableService`, `StartEnableService`, `RunCMD`, `SetPriority`). `ProcessHelper` keeps one-line delegating shims for all seven so its ~50 existing call sites across `source/app/` needed no changes. Only `CheckAlreadyRunning` and `RunAsAdmin` remain as real logic in `ProcessHelper`, since both use WinForms `Application`/`MessageBox`.
 
-**Still to do (everything else):** `AppConfig.cs`, `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Mode/`, `Pawn/`, `Peripherals/`, `USB/` folders. Two files gate most of this and should lead the next slice:
+**Still to do (everything else):** `AppConfig.cs`, `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Mode/`, `Pawn/`, `Peripherals/`, `USB/` folders. One file now gates most of this and should lead the next slice:
 
 - `source/app/AppConfig.cs` reads `Application.StartupPath` (WinForms) and references `AsusACPI` and `GHelper.Mode`. Almost every candidate module depends on it.
-- `source/app/Helpers/ProcessHelper.cs` still uses `MessageBox`, `Application.Exit`, and `Application.ExecutablePath` in `CheckAlreadyRunning` and `RunAsAdmin`. Those two members are genuinely head-specific; the remaining process utilities are not and can move once the type is split.
 
 `Peripherals/` and `Pawn/` are the cleanest large modules to move after that — `Pawn/` has zero UI references, and `Peripherals/` has them in only one of its 41 files (`PeripheralsProvider.cs`).
 

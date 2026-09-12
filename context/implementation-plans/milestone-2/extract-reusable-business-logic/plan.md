@@ -30,7 +30,7 @@ Where a type is part UI-specific and part not, split it and leave one-line deleg
 | # | Slice | Status |
 | --- | --- | --- |
 | 1 | Create `GHelper.Shared`; move `Logger`, `DeviceHelper`, `Keystone`; extract `UserIdentity` out of `ProcessHelper` | Done |
-| 2 | Split `ProcessHelper`: move the process/service utilities, leave `CheckAlreadyRunning` and `RunAsAdmin` in the head | Not started |
+| 2 | Split `ProcessHelper`: move the process/service utilities, leave `CheckAlreadyRunning` and `RunAsAdmin` in the head | Done |
 | 3 | Move `AppConfig` (replace `Application.StartupPath`; resolve the `AsusACPI` / `GHelper.Mode` edges first) | Not started |
 | 4+ | Hardware modules, cheapest first: `Pawn/` (no UI references), `Peripherals/` (UI references in one file of 41), then `USB/`, `Battery/`, `Fan/`, `Display/`, `Gpu/`, `Mode/`, `AnimeMatrix/`, `Ally/`, `Input/` | Not started |
 
@@ -51,3 +51,5 @@ Where a type is part UI-specific and part not, split it and leave one-line deleg
 **Slice 1 (2026-09-12).** Created `GHelper.Shared`; `git mv`'d `Logger.cs`, `DeviceHelper.cs`, `Keystone.cs` from `app/Helpers/`; added `UserIdentity.cs` holding the `IsRunningAsSystem` / `IsUserAdministrator` implementations lifted from `ProcessHelper`, which now delegates. Added the `ProjectReference` to `app/GHelper.csproj` and a root `G-Helper.WPF.sln`. Solution builds 0/0; WinForms head launches and behaves normally.
 
 Slice 1 is intentionally small: it is the only set of files with no remaining dependency on anything that has to stay in `app/`, and moving `Logger` first is what unblocks every later slice.
+
+**Slice 2 (2026-09-12).** Moved the remaining non-UI members of `ProcessHelper` (`KillByName`, `KillSmartDisplayControl`, `KillByProcess`, `StopDisableService`, `StartEnableService`, `RunCMD`, `SetPriority`) into a new `GHelper.Shared/Helpers/ProcessUtility.cs`. Named it `ProcessUtility` rather than reusing `ProcessHelper`, since both types share the `GHelper.Helpers` namespace and identical names across the app assembly and the `GHelper.Shared` assembly it references would make every unqualified call site ambiguous (CS0104) — the same naming pattern slice 1 already established for `UserIdentity`. `ProcessHelper` keeps one-line delegating shims for all seven, so its ~50 existing call sites across `source/app/` needed no changes. `CheckAlreadyRunning` and `RunAsAdmin` stayed in `app/` as real logic (WinForms `Application`/`MessageBox`). Updated the `ProcessHelper.cs` mapping row. Both solutions build 0/0; the WinForms head's behaviour is unaffected (delegation only, no logic changes).
