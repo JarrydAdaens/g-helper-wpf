@@ -72,7 +72,7 @@ New shared class-library project; incremental moves out of `source/app/AppConfig
 
 **Plan:** `../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md`
 
-**Status:** In Progress — slice 3 of an unknown number landed. `AppConfig`, the file that gated most of the remaining work, has moved.
+**Status:** In Progress — slice 4 of an unknown number landed. `AppConfig`, the file that gated most of the remaining work, has moved, and the first hardware module (`Pawn/`) has followed it.
 
 **Moved so far:** `GHelper.Shared` project created (`net10.0-windows`, x64, no `UseWindowsForms`/`UseWPF`) and referenced by `source/app/GHelper.csproj`. Moved into it:
 
@@ -82,9 +82,11 @@ New shared class-library project; incremental moves out of `source/app/AppConfig
 
 The on-disk configuration format is now confirmed: a single flat JSON object of string-keyed scalars at `%APPDATA%\GHelper\config.json`, written atomically through a `.tmp` / `.bak` swap, with a `%PROGRAMDATA%` copy kept in sync for the SYSTEM case and a portable `config.json` beside the executable taking precedence over both.
 
-**Still to do (everything else):** `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/` and `Mode/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Pawn/`, `Peripherals/`, `USB/` folders.
+- `Pawn/CpuInfo.cs`, `Pawn/IntelMsr.cs`, `Pawn/PawnIOWrapper.cs`, `Pawn/RyzenSmu.cs` (slice 4), moved unchanged with the `PawnIO` namespace kept as-is — confirmed zero WinForms references before moving. `Pawn/IntelMSR.bin` and `Pawn/RyzenSMU.bin` deliberately stayed behind in `source/app/Pawn/`: they are embedded resources in `GHelper.csproj` whose logical resource name is derived from the *calling* assembly's name at runtime, so they only resolve correctly while embedded in `GHelper.exe`, the only assembly that currently calls `Initialize(Assembly)`.
 
-`Peripherals/` and `Pawn/` are the cleanest large modules to move next — `Pawn/` has zero UI references, and `Peripherals/` has them in only one of its 41 files (`PeripheralsProvider.cs`). `AsusACPI` remains the awkward one: it has no UI dependency at all, but five of its own instance methods reach back into the head's `Program.acpi` static, which has to be untangled before it can move.
+**Still to do (everything else):** `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/` and `Mode/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Peripherals/`, `USB/` folders.
+
+`Peripherals/` is the cleanest large module to move next — UI references appear in only one of its 41 files (`PeripheralsProvider.cs`). `AsusACPI` remains the awkward one: it has no UI dependency at all, but five of its own instance methods reach back into the head's `Program.acpi` static, which has to be untangled before it can move.
 
 ---
 
