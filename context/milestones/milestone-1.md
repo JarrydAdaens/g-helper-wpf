@@ -34,7 +34,7 @@ Establish a clean, reproducible fork of upstream G-Helper with the documentation
 
 ## Status
 
-In Progress — 1/4 stories complete (Story 2 completed by this initialization; Stories 1, 3, and 4 open — see notes on each story).
+In Progress — 2/4 stories complete (Stories 2 and 3 complete; Stories 1 and 4 open — see notes on each story).
 
 ---
 
@@ -44,7 +44,7 @@ In Progress — 1/4 stories complete (Story 2 completed by this initialization; 
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 1 | [Fork the original project](#story-1) | Docs/Tooling | — | — | — | *not yet generated* | Needs Verification |
 | 2 | [Initialise project context](#story-2) | Docs | — | — | — | *not yet generated* | Complete |
-| 3 | [Validate the clean baseline](#story-3) | Research | — | — | — | *not yet generated* | Not Started |
+| 3 | [Validate the clean baseline](#story-3) | Research | — | — | — | *not yet generated* | Complete |
 | 4 | [Establish upstream synchronisation rules](#story-4) | Docs/Tooling | — | — | — | *not yet generated* | In Progress |
 
 ---
@@ -128,7 +128,7 @@ Milestone 2's extraction work needs a known-good baseline to diff against; witho
 
 **Plan:** `../implementation-plans/milestone-1/validate-the-clean-baseline/plan.md`
 
-**Status:** Not Started
+**Status:** Complete — a clean checkout of `app/GHelper.sln` restored, built (`dotnet build`, Debug, x64: 0 warnings, 0 errors), and launched successfully on the actual target hardware, an ASUS ROG Ally RC71L (confirmed via `Win32_ComputerSystem`). The main UI rendered correctly with live sensor data, and the runtime log showed normal startup with no unhandled exceptions; the only non-blocking issue was an expected elevation requirement for the Battery Charge Limit scheduled task. Full results recorded in [../wiki/baseline-validation.md](../wiki/baseline-validation.md).
 
 ---
 

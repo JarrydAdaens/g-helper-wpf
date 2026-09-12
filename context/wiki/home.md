@@ -46,4 +46,5 @@ Wielding context thoughtfully has a direct effect on the quality of outcomes. Cl
 
 ## Other Pages
 
+- [baseline-validation.md](baseline-validation.md) - recorded results of validating the clean forked baseline (Milestone 1 Story 3): build, launch, and runtime behaviour on a real ROG Ally
 - [secrets.md](secrets.md) - placeholder guidance for documenting secret-management decisions
