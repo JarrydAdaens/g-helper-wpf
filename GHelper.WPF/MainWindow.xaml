@@ -17,7 +17,7 @@
     <TextBlock
       Margin="0,0,0,16"
       Foreground="Gray"
-      Text="Minimal head. Proves GHelper.Shared loads and runs from this process."
+      Text="Minimal head. Proves GHelper.Shared loads and runs from this process. Closing this window hides it — the app stays in the tray."
       TextWrapping="Wrap" />
 
     <TextBlock Name="SharedAssemblyText" Margin="0,0,0,6" />

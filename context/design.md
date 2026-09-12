@@ -135,7 +135,7 @@ g-helper-wpf/
 `-- README.md
 ```
 
-`GHelper.Shared/` and `GHelper.WPF/` were created by Milestone 2 (Story 5 and Story 6 respectively) alongside `app/`, which keeps its current role as the WinForms head. Both are still early: `GHelper.Shared` holds only the first extraction slice, and `GHelper.WPF` is a single placeholder window with no tray infrastructure yet.
+`GHelper.Shared/` and `GHelper.WPF/` were created by Milestone 2 (Story 5 and Story 6 respectively) alongside `app/`, which keeps its current role as the WinForms head. `GHelper.Shared` still holds only the first extraction slice. `GHelper.WPF` is now tray-resident — a tray icon with a show/hide window, a context menu, single-instance handling, its own icon and manifest — but the window behind it is still a placeholder with no real UI.
 
 ---
 

@@ -38,6 +38,8 @@ Launch either exe directly, or `dotnet run --project app\GHelper.csproj` / `--pr
 
 `GHelper.exe` is tray-resident. It may open its main panel on launch or start hidden, depending on saved settings; when it starts hidden its `MainWindowHandle` stays zero, so scripted automation has to find the titled top-level window of the process instead.
 
+`GHelper.WPF.exe` is tray-resident too, and always starts hidden: look for the "G-Helper WPF" notification-area icon rather than a window. Left-click it to show or hide the window, or right-click for "Open G-Helper" / "Exit". Closing the window with its X button only hides it — Exit is the only way to end the process. Launching the exe a second time activates the instance already running instead of starting another.
+
 ## Logs
 
 Not written into the repo. Location: `%APPDATA%\GHelper\log.txt` (see `GHelper.Shared/Helpers/Logger.cs`), or `%PROGRAMDATA%\GHelper\log.txt` when running as SYSTEM.

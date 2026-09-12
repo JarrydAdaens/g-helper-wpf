@@ -40,6 +40,7 @@ Verified 2026-09-12:
 | `app/Helpers/Keystone.cs` | `GHelper.Shared/Helpers/Keystone.cs` | Moved unchanged. |
 | `app/Helpers/ProcessHelper.cs` | `app/Helpers/ProcessHelper.cs` + `GHelper.Shared/Helpers/UserIdentity.cs` | Split. `IsRunningAsSystem` / `IsUserAdministrator` implementations moved to `UserIdentity`; `ProcessHelper` keeps one-line delegating members so upstream call sites still resolve. The rest of `ProcessHelper` stays in `app/` because it uses WinForms `Application` and `MessageBox`. |
 | `app/GHelper.sln` | `app/GHelper.sln` (unchanged) + `G-Helper.WPF.sln` | Supplemented. The upstream solution is untouched and still builds the WinForms head alone; the new root solution builds all three projects. |
+| `app/favicon.ico`, `app/Resources/standard.ico` | unchanged, plus copies at `GHelper.WPF/favicon.ico` and `GHelper.WPF/Resources/standard.ico` | Copied, not moved. The WPF head uses the same artwork for its executable and tray icons. If upstream changes either file, mirror it into `GHelper.WPF/`. |
 
 Top-level `app/` folders as they currently stand: `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Helpers/`, `Input/`, `Mode/`, `Overlay/`, `Pawn/`, `Peripherals/`, `Properties/`, `Resources/`, `UI/`, `USB/` — all still present.
 

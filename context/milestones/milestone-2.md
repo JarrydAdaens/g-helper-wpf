@@ -33,7 +33,7 @@ Separate reusable G-Helper logic from the WinForms front end into a shared libra
 
 ## Status
 
-In Progress — 0/3 stories complete. Story 5 and Story 6 have both started; Story 7 is holding. The first extraction slice and a minimal WPF shell have landed and both heads build and launch, but the bulk of the shared-logic extraction is still ahead.
+In Progress — 1/3 stories complete. Story 6 (the WPF head) is done: it builds, references the shared library, and runs as a tray application. Story 5 has landed its first extraction slice, Story 7 is holding, and the bulk of the shared-logic extraction is still ahead.
 
 ---
 
@@ -42,7 +42,7 @@ In Progress — 0/3 stories complete. Story 5 and Story 6 have both started; Sto
 | # | Story | Type | Complexity | Effort | Risk | Plan | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 1 of N) |
-| 6 | [Create G-Helper.WPF](#story-6) | Feature | — | — | — | [plan](../implementation-plans/milestone-2/create-ghelper-wpf/plan.md) | In Progress (shell only) |
+| 6 | [Create G-Helper.WPF](#story-6) | Feature | — | — | — | [plan](../implementation-plans/milestone-2/create-ghelper-wpf/plan.md) | Complete |
 | 7 | [Preserve WinForms baseline during the split](#story-7) | Refactor | — | — | — | *not yet generated* | In Progress (continuous, holding) |
 
 ---
@@ -108,11 +108,11 @@ New WPF project in the solution; reference to the Story 5 shared project; minima
 
 **Plan:** `../implementation-plans/milestone-2/create-ghelper-wpf/plan.md`
 
-**Status:** In Progress — shell only, tray infrastructure not started.
+**Status:** Complete — the head builds, references `GHelper.Shared`, and runs as a real tray application.
 
-**Done:** `GHelper.WPF` project exists (`net10.0-windows`, x64, `UseWPF`), references `GHelper.Shared`, builds, launches, and shows a single placeholder window that reads the shared assembly identity, log path, `UserIdentity.IsRunningAsSystem()`, and `DeviceHelper.GetGpuError()` — verifying shared services initialise from this second process.
+**Done:** `GHelper.WPF` (`net10.0-windows`, x64, `UseWPF`) references `GHelper.Shared` and starts tray-resident: no window on launch, a "G-Helper WPF" notification-area icon, left-click to show/hide, a context menu with "Open G-Helper" and "Exit", and a window whose close button hides it rather than ending the process. A second launch activates the running instance instead of duplicating it (session-local named event; the WinForms head's opposite "new instance replaces old" behaviour was deliberately not copied). The executable carries `favicon.ico` and an `app.manifest` mirroring `app/GHelper.csproj`. Startup, duplicate-instance handover and shutdown all log through the shared `Logger`, and the placeholder window still reports shared assembly identity, log path, `UserIdentity.IsRunningAsSystem()` and `DeviceHelper.GetGpuError()`.
 
-**Still to do:** tray-icon bootstrap and tray-resident lifetime (show/hide, context menu, single-instance handling), an application icon and manifest, and initialising real shared services rather than the four read-only probes currently on the window.
+**Caveat on "initialise real shared services":** `GHelper.Shared` currently holds only `Logger`, `DeviceHelper`, `Keystone` and `UserIdentity` — none of which is a startable service. The head therefore exercises shared code across its whole lifetime rather than starting services that do not exist yet. Real service initialisation (configuration, ACPI, hardware control) arrives with Story 5's extraction and belongs to that story, not this one.
 
 ---
 
@@ -142,6 +142,8 @@ Ongoing verification alongside Story 5/6 work rather than a single discrete chan
 **Status:** In Progress — continuous constraint, holding after slice 1.
 
 Verified after the first extraction slice: `dotnet build app\GHelper.sln -c Debug` succeeds with 0 warnings / 0 errors, and the launched app shows its normal panel with live sensor readings and writes to the shared log as before.
+
+Re-checked after Story 6's tray work: `dotnet build app\GHelper.sln -c Debug` still succeeds with 0 warnings / 0 errors. That change touched only `GHelper.WPF/`, so the WinForms head was not launched again — the two heads share `%APPDATA%\GHelper\`, and running them together would have muddied the tray verification.
 
 ---
 
