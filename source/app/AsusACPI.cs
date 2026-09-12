@@ -4,14 +4,6 @@ using System.Collections.Concurrent;
 using System.Management;
 using System.Runtime.InteropServices;
 
-public enum AsusFan
-{
-    CPU = 0,
-    GPU = 1,
-    Mid = 2,
-    XGM = 3
-}
-
 public enum AsusMode
 {
     Balanced = 0,
@@ -161,11 +153,12 @@ public class AsusACPI
     public const int Tablet_Tent = 2;
     public const int Tablet_Rotated = 3;
 
-    public const int PerformanceBalanced = 0;
-    public const int PerformanceTurbo = 1;
-    public const int PerformanceSilent = 2;
-    public const int PerformanceFullSpeed = 3;
-    public const int PerformanceManual = 4;
+    // Defined in GHelper.Shared so AppConfig can read them without depending on the head.
+    public const int PerformanceBalanced = GHelper.Mode.ModeConfig.PerformanceBalanced;
+    public const int PerformanceTurbo = GHelper.Mode.ModeConfig.PerformanceTurbo;
+    public const int PerformanceSilent = GHelper.Mode.ModeConfig.PerformanceSilent;
+    public const int PerformanceFullSpeed = GHelper.Mode.ModeConfig.PerformanceFullSpeed;
+    public const int PerformanceManual = GHelper.Mode.ModeConfig.PerformanceManual;
 
     public const int GPUModeEco = 0;
     public const int GPUModeStandard = 1;

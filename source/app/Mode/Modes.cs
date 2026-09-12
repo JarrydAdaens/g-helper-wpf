@@ -128,7 +128,7 @@
 
         public static int GetCurrent()
         {
-            return AppConfig.Get("performance_mode");
+            return ModeConfig.GetCurrent();
         }
 
         public static bool IsCurrentCustom()
@@ -144,7 +144,7 @@
 
         public static int GetCurrentBase()
         {
-            return GetBase(GetCurrent());
+            return ModeConfig.GetCurrentBase();
         }
 
         public static string GetCurrentName()
@@ -159,10 +159,7 @@
 
         public static int GetBase(int mode)
         {
-            if (mode >= 0 && mode <= 2)
-                return mode;
-            else
-                return AppConfig.Get("mode_base_" + mode);
+            return ModeConfig.GetBase(mode);
         }
 
         public static string GetName(int mode)

@@ -28,12 +28,15 @@ public static class AppConfig
     {
         string configName = "config.json";
         string appPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "GHelper");
-        string startupConfig = Path.Combine(Application.StartupPath.Trim('\\'), configName);
+
+        // AppContext.BaseDirectory is exactly what WinForms Application.StartupPath returns on
+        // modern .NET, and unlike Assembly.Location it still resolves for a single-file publish.
+        string startupConfig = Path.Combine(AppContext.BaseDirectory.Trim('\\'), configName);
 
         fallbackConfigFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), "GHelper", configName);
 
         configFile = File.Exists(startupConfig) ? startupConfig
-        : ProcessHelper.IsRunningAsSystem() && File.Exists(fallbackConfigFile) ? fallbackConfigFile
+        : UserIdentity.IsRunningAsSystem() && File.Exists(fallbackConfigFile) ? fallbackConfigFile
         : Path.Combine(appPath, configName);
 
         Directory.CreateDirectory(Path.GetDirectoryName(configFile));
@@ -249,12 +252,12 @@ public static class AppConfig
 
     public static void RemoveMode(string name)
     {
-        Remove(name + "_" + Modes.GetCurrent());
+        Remove(name + "_" + ModeConfig.GetCurrent());
     }
 
     public static string GgetParamName(AsusFan device, string paramName = "fan_profile")
     {
-        int mode = Modes.GetCurrent();
+        int mode = ModeConfig.GetCurrent();
         string name;
 
         switch (device)
@@ -303,11 +306,11 @@ public static class AppConfig
 
     public static byte[] GetDefaultCurve(AsusFan device)
     {
-        int mode = Modes.GetCurrentBase();
+        int mode = ModeConfig.GetCurrentBase();
 
         switch (mode)
         {
-            case AsusACPI.PerformanceTurbo:
+            case ModeConfig.PerformanceTurbo:
                 switch (device)
                 {
                     case AsusFan.GPU:
@@ -315,7 +318,7 @@ public static class AppConfig
                     default:
                         return StringToBytes("1E-3F-44-48-4C-50-54-62-11-1A-22-29-34-43-51-5A");
                 }
-            case AsusACPI.PerformanceSilent:
+            case ModeConfig.PerformanceSilent:
                 switch (device)
                 {
                     case AsusFan.GPU:
@@ -336,27 +339,27 @@ public static class AppConfig
 
     public static string GetModeString(string name)
     {
-        return GetString(name + "_" + Modes.GetCurrent());
+        return GetString(name + "_" + ModeConfig.GetCurrent());
     }
 
     public static int GetMode(string name, int empty = -1)
     {
-        return Get(name + "_" + Modes.GetCurrent(), empty);
+        return Get(name + "_" + ModeConfig.GetCurrent(), empty);
     }
 
     public static bool IsMode(string name)
     {
-        return Get(name + "_" + Modes.GetCurrent()) == 1;
+        return Get(name + "_" + ModeConfig.GetCurrent()) == 1;
     }
 
     public static void SetMode(string name, int value)
     {
-        Set(name + "_" + Modes.GetCurrent(), value);
+        Set(name + "_" + ModeConfig.GetCurrent(), value);
     }
 
     public static void SetMode(string name, string value)
     {
-        Set(name + "_" + Modes.GetCurrent(), value);
+        Set(name + "_" + ModeConfig.GetCurrent(), value);
     }
 
     public static bool IsAlly()

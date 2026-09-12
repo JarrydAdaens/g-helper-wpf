@@ -99,7 +99,7 @@ G-Helper (solution)
 
 **Repo layout tidy pass (2026-09-12).** `app/`, `GHelper.Shared/`, `GHelper.WPF/`, and `G-Helper.WPF.sln` all moved one level deeper, under a new `source/` folder, so all first-party code sits under one root instead of scattered across the repository root. Every path elsewhere in this document and the wiki that used to read `app/...`, `GHelper.Shared/...`, or `GHelper.WPF/...` now reads `source/app/...`, `source/GHelper.Shared/...`, `source/GHelper.WPF/...`. `context/`, `harness/`, `docs/`, `.github/`, and the root-level config/doc files were not moved. See [upstream-source-mapping.md](wiki/upstream-source-mapping.md) for the mapping-table entry this move added.
 
-Milestone 2 Story 5 is the extraction of the shared layer out of `source/app/`, done incrementally rather than as a single rewrite; as of the first slice it holds only logging, Windows-identity, and display-device helpers. The constraint that does not change is that UI-specific code must not leak into the shared layer.
+Milestone 2 Story 5 is the extraction of the shared layer out of `source/app/`, done incrementally rather than as a single rewrite; as of the third slice it holds logging, Windows-identity, process/service and display-device helpers, and the configuration layer. The constraint that does not change is that UI-specific code must not leak into the shared layer.
 
 **External services and dependencies (as currently understood from the existing `source/app/` source, not yet fully re-verified against the extracted Shared layer):**
 
@@ -176,7 +176,9 @@ The migration/source-mapping document is [wiki/upstream-source-mapping.md](wiki/
 
 ### Primary Configuration
 
-The existing WinForms application persists settings via `app/AppConfig.cs` and related per-feature settings/designer files (`app/Settings.cs`, `app/OverlayConfig.cs`, `app/AsusKeyboardSettings.cs`, `app/AsusMouseSettings.cs`, `app/Matrix.cs`, `app/Fans.cs`, `app/Extra.cs`, `app/Slash.cs`, `app/Handheld.cs`). The exact on-disk format and schema have not been re-verified for this synthesis pass; Milestone 2 Story 5 (extracting shared logic, including configuration) should confirm and document the concrete format here.
+Both executable heads persist settings through `AppConfig`, which moved to `source/GHelper.Shared/AppConfig.cs` in Milestone 2 Story 5. Related per-feature settings/designer files still live in the WinForms head (`source/app/Settings.cs`, `OverlayConfig.cs`, `AsusKeyboardSettings.cs`, `AsusMouseSettings.cs`, `Matrix.cs`, `Fans.cs`, `Extra.cs`, `Slash.cs`, `Handheld.cs`).
+
+Format, confirmed during that move: a single flat JSON object of string-keyed scalars — no nesting, no schema version. Per-mode values are stored as flattened keys (`limit_total_1`, `fan_profile_cpu_2`), with fan curves held as hyphenated hex strings. Resolution order for the file is a portable `config.json` beside the executable, then `%PROGRAMDATA%\GHelper\config.json` when running as SYSTEM, then `%APPDATA%\GHelper\config.json`. Writes are debounced by two seconds and committed atomically through a `.tmp` write plus `File.Replace`, which leaves a `.bak`; on load, a broken file falls back to a regex key/value salvage pass, then the `.bak`, then the `%PROGRAMDATA%` copy, and only then reinitializes.
 
 ### Secondary or App-Level Configuration
 
@@ -192,7 +194,7 @@ No secrets or external-service credentials are known to be part of this applicat
 
 ### G-Helper.Shared (`GHelper.Shared`, extraction in progress)
 
-Target scope: UI-independent hardware communication, device services, power/fan/battery/RGB logic, controller/input handling, and configuration, consumed by both executable heads. Currently extracted: `Logger`, `UserIdentity`, `DeviceHelper`, and `Keystone`. Everything else still lives in `source/app/`, most of it blocked behind `AppConfig` (which uses WinForms `Application.StartupPath`) and `ProcessHelper` (which uses `MessageBox`/`Application.Exit`).
+Target scope: UI-independent hardware communication, device services, power/fan/battery/RGB logic, controller/input handling, and configuration, consumed by both executable heads. Currently extracted: `Logger`, `UserIdentity`, `ProcessUtility`, `DeviceHelper`, `Keystone`, `AppConfig`, `AsusFan`, and `ModeConfig`. Everything else still lives in `source/app/`. With `AppConfig` moved, the remaining blocker is no longer configuration but `AsusACPI`, which has no UI dependency yet still calls back into the head's `Program.acpi`.
 
 ### G-Helper (existing WinForms head)
 
@@ -243,7 +245,7 @@ Not yet a defined concern. Revisit once the WPF overlay shell (Milestone 3 Story
 - **Resolved (Milestone 1 Story 4):** the development branch is `wpf`. The source dictation's branch-strategy diagram named it `G-Helper.WPF`, but that naming was provisional; `wpf` already holds all fork work and renaming it would only churn remote refs and local clones for no functional gain. Read `G-Helper.WPF` in the dictation as the project name, not the branch name.
 - **Resolved (Milestone 1 Story 4):** GitHub does record this repository as a fork of `seerge/g-helper` (public GitHub API, 2026-09-12: `"fork": true`, `parent`/`source` = `seerge/g-helper`). An `upstream` remote pointing at `https://github.com/seerge/g-helper.git` has been added and verified reachable, and `main` is an unmodified ancestor of `upstream/main`, so it remains a clean sync point. Details in [wiki/upstream-source-mapping.md](wiki/upstream-source-mapping.md).
 - The `G-Helper.Shared` component boundary (Section 3 of the source dictation) is a target shape, not a verified inventory. Milestone 2 Story 5 planning should derive the actual extraction boundary from the current `source/app/` source rather than assuming the listed components map one-to-one to existing files.
-- The exact on-disk configuration format/schema used by `source/app/AppConfig.cs` and related settings files has not been re-verified for this design pass.
+- **Resolved (Milestone 2 Story 5, slice 3):** the on-disk configuration format is confirmed and recorded under [Configuration](#primary-configuration). `AppConfig` now lives in `source/GHelper.Shared/`.
 
 ---
 

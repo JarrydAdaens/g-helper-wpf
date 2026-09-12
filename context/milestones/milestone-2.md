@@ -41,7 +41,7 @@ In Progress — 1/3 stories complete. Story 6 (the WPF head) is done: it builds,
 
 | # | Story | Type | Complexity | Effort | Risk | Plan | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 2 of N) |
+| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 3 of N) |
 | 6 | [Create G-Helper.WPF](#story-6) | Feature | — | — | — | [plan](../implementation-plans/milestone-2/create-ghelper-wpf/plan.md) | Complete |
 | 7 | [Preserve WinForms baseline during the split](#story-7) | Refactor | — | — | — | *not yet generated* | In Progress (continuous, holding) |
 
@@ -72,15 +72,19 @@ New shared class-library project; incremental moves out of `source/app/AppConfig
 
 **Plan:** `../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md`
 
-**Status:** In Progress — slice 2 of an unknown number landed.
+**Status:** In Progress — slice 3 of an unknown number landed. `AppConfig`, the file that gated most of the remaining work, has moved.
 
-**Moved so far:** `GHelper.Shared` project created (`net10.0-windows`, x64, no `UseWindowsForms`/`UseWPF`) and referenced by `source/app/GHelper.csproj`. Moved into it: `Helpers/Logger.cs`, `Helpers/DeviceHelper.cs`, `Helpers/Keystone.cs`. `source/app/Helpers/ProcessHelper.cs` has been fully split: `Helpers/UserIdentity.cs` (slice 1) holds `IsRunningAsSystem` / `IsUserAdministrator`, and `Helpers/ProcessUtility.cs` (slice 2) holds the remaining process/service utilities (`KillByName`, `KillSmartDisplayControl`, `KillByProcess`, `StopDisableService`, `StartEnableService`, `RunCMD`, `SetPriority`). `ProcessHelper` keeps one-line delegating shims for all seven so its ~50 existing call sites across `source/app/` needed no changes. Only `CheckAlreadyRunning` and `RunAsAdmin` remain as real logic in `ProcessHelper`, since both use WinForms `Application`/`MessageBox`.
+**Moved so far:** `GHelper.Shared` project created (`net10.0-windows`, x64, no `UseWindowsForms`/`UseWPF`) and referenced by `source/app/GHelper.csproj`. Moved into it:
 
-**Still to do (everything else):** `AppConfig.cs`, `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Mode/`, `Pawn/`, `Peripherals/`, `USB/` folders. One file now gates most of this and should lead the next slice:
+- `Helpers/Logger.cs`, `Helpers/DeviceHelper.cs`, `Helpers/Keystone.cs` (slice 1).
+- `source/app/Helpers/ProcessHelper.cs`, fully split: `Helpers/UserIdentity.cs` (slice 1) holds `IsRunningAsSystem` / `IsUserAdministrator`, and `Helpers/ProcessUtility.cs` (slice 2) holds the remaining process/service utilities (`KillByName`, `KillSmartDisplayControl`, `KillByProcess`, `StopDisableService`, `StartEnableService`, `RunCMD`, `SetPriority`). `ProcessHelper` keeps one-line delegating shims for all seven so its ~50 existing call sites across `source/app/` needed no changes. Only `CheckAlreadyRunning` and `RunAsAdmin` remain as real logic in `ProcessHelper`, since both use WinForms `Application`/`MessageBox`.
+- `AppConfig.cs` in full (slice 3), keeping its global namespace so all ~1000 call sites across `source/app/` were untouched. `Application.StartupPath` became `AppContext.BaseDirectory` (the same value on modern .NET, and the only candidate that survives a single-file publish), and `ProcessHelper.IsRunningAsSystem()` became `UserIdentity.IsRunningAsSystem()`. Its two other edges were resolved by moving the `AsusFan` enum out of `AsusACPI.cs` into `GHelper.Shared/AsusFan.cs`, and by splitting the three pure config reads out of `GHelper.Mode.Modes` (`GetCurrent`, `GetBase`, `GetCurrentBase`) plus the five `Performance*` constants into a new shared `GHelper.Mode.ModeConfig`. `Modes` and `AsusACPI` keep delegating members and constant aliases respectively, so neither type's call sites changed.
 
-- `source/app/AppConfig.cs` reads `Application.StartupPath` (WinForms) and references `AsusACPI` and `GHelper.Mode`. Almost every candidate module depends on it.
+The on-disk configuration format is now confirmed: a single flat JSON object of string-keyed scalars at `%APPDATA%\GHelper\config.json`, written atomically through a `.tmp` / `.bak` swap, with a `%PROGRAMDATA%` copy kept in sync for the SYSTEM case and a portable `config.json` beside the executable taking precedence over both.
 
-`Peripherals/` and `Pawn/` are the cleanest large modules to move after that — `Pawn/` has zero UI references, and `Peripherals/` has them in only one of its 41 files (`PeripheralsProvider.cs`).
+**Still to do (everything else):** `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/` and `Mode/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Pawn/`, `Peripherals/`, `USB/` folders.
+
+`Peripherals/` and `Pawn/` are the cleanest large modules to move next — `Pawn/` has zero UI references, and `Peripherals/` has them in only one of its 41 files (`PeripheralsProvider.cs`). `AsusACPI` remains the awkward one: it has no UI dependency at all, but five of its own instance methods reach back into the head's `Program.acpi` static, which has to be untangled before it can move.
 
 ---
 
@@ -145,6 +149,8 @@ Verified after the first extraction slice: `dotnet build app\GHelper.sln -c Debu
 Re-checked after Story 6's tray work: `dotnet build app\GHelper.sln -c Debug` still succeeds with 0 warnings / 0 errors. That change touched only `GHelper.WPF/`, so the WinForms head was not launched again — the two heads share `%APPDATA%\GHelper\`, and running them together would have muddied the tray verification.
 
 Re-checked again after the `source/` repo tidy pass (2026-09-12): `dotnet build source\G-Helper.WPF.sln -c Debug` and `dotnet build source\app\GHelper.sln -c Debug` both succeed with 0 warnings / 0 errors from the new location.
+
+Re-checked after Story 5 slice 3 (the `AppConfig` move), which warranted a full runtime check because it changes config I/O: both solutions still build 0/0, and the launched head logs `Config loaded from ...\AppData\Roaming\GHelper\config.json` — the same path as before the move — then opens its panel titled `G-Helper - ROG Ally RC71L` with live sensor readings (CPU 53°C / 3200RPM, GPU 43°C / 2700RPM) and the Ally-only controller section present, which means model detection still drives the model-conditional UI. Switching Balanced → Silent → Balanced applied at the hardware level and round-tripped `performance_mode` through `config.json` correctly; comparing the file before and after the session shows `start_count` as the only changed key.
 
 ---
 
