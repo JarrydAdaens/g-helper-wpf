@@ -15,7 +15,17 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <!--
+    The WinForms head gets System.Drawing implicitly from UseWindowsForms. This project cannot
+    set that, so it declares the same implicit using explicitly; System.Drawing.Color itself is
+    in the base framework (System.Drawing.Primitives), so no package reference is needed.
+  -->
   <ItemGroup>
+    <Using Include="System.Drawing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HidSharpCore" Version="1.3.0" />
     <PackageReference Include="System.Management" Version="10.0.10" />
   </ItemGroup>
 

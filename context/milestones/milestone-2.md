@@ -33,7 +33,7 @@ Separate reusable G-Helper logic from the WinForms front end into a shared libra
 
 ## Status
 
-In Progress — 1/3 stories complete. Story 6 (the WPF head) is done: it builds, references the shared library, and runs as a tray application. Story 5 has landed its first extraction slice, Story 7 is holding, and the bulk of the shared-logic extraction is still ahead. Separately, all first-party code (`app/`, `GHelper.Shared/`, `GHelper.WPF/`, and the umbrella `.sln`) moved under a new `source/` folder in a repo-wide tidy pass (2026-09-12); every path below now starts with `source/`. See [upstream-source-mapping.md](../wiki/upstream-source-mapping.md).
+In Progress — 1/3 stories complete. Story 6 (the WPF head) is done: it builds, references the shared library, and runs as a tray application. Story 5 has landed five extraction slices, Story 7 is holding, and a good deal of the shared-logic extraction is still ahead. Separately, all first-party code (`app/`, `GHelper.Shared/`, `GHelper.WPF/`, and the umbrella `.sln`) moved under a new `source/` folder in a repo-wide tidy pass (2026-09-12); every path below now starts with `source/`. See [upstream-source-mapping.md](../wiki/upstream-source-mapping.md).
 
 ---
 
@@ -41,7 +41,7 @@ In Progress — 1/3 stories complete. Story 6 (the WPF head) is done: it builds,
 
 | # | Story | Type | Complexity | Effort | Risk | Plan | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 3 of N) |
+| 5 | [Extract reusable business logic](#story-5) | Refactor | — | — | — | [plan](../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md) | In Progress (slice 5 of N) |
 | 6 | [Create G-Helper.WPF](#story-6) | Feature | — | — | — | [plan](../implementation-plans/milestone-2/create-ghelper-wpf/plan.md) | Complete |
 | 7 | [Preserve WinForms baseline during the split](#story-7) | Refactor | — | — | — | *not yet generated* | In Progress (continuous, holding) |
 
@@ -72,7 +72,7 @@ New shared class-library project; incremental moves out of `source/app/AppConfig
 
 **Plan:** `../implementation-plans/milestone-2/extract-reusable-business-logic/plan.md`
 
-**Status:** In Progress — slice 4 of an unknown number landed. `AppConfig`, the file that gated most of the remaining work, has moved, and the first hardware module (`Pawn/`) has followed it.
+**Status:** In Progress — slice 5 of an unknown number landed. `AppConfig`, the file that gated most of the remaining work, has moved, and two hardware modules have followed it: `Pawn/`, then the bulk of `Peripherals/` (9,904 lines, the largest slice so far).
 
 **Moved so far:** `GHelper.Shared` project created (`net10.0-windows`, x64, no `UseWindowsForms`/`UseWPF`) and referenced by `source/app/GHelper.csproj`. Moved into it:
 
@@ -84,9 +84,13 @@ The on-disk configuration format is now confirmed: a single flat JSON object of 
 
 - `Pawn/CpuInfo.cs`, `Pawn/IntelMsr.cs`, `Pawn/PawnIOWrapper.cs`, `Pawn/RyzenSmu.cs` (slice 4), moved unchanged with the `PawnIO` namespace kept as-is — confirmed zero WinForms references before moving. `Pawn/IntelMSR.bin` and `Pawn/RyzenSMU.bin` deliberately stayed behind in `source/app/Pawn/`: they are embedded resources in `GHelper.csproj` whose logical resource name is derived from the *calling* assembly's name at runtime, so they only resolve correctly while embedded in `GHelper.exe`, the only assembly that currently calls `Initialize(Assembly)`.
 
-**Still to do (everything else):** `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, the remainder of `Helpers/` and `Mode/`, and the `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `Peripherals/`, `USB/` folders.
+- `Peripherals/`'s 40 device files — `IPeripheral.cs`, `Keyboard/**`, `Mouse/**`, 9,904 lines — into `GHelper.Shared/Peripherals/` (slice 5), namespaces unchanged. Three edges had to be resolved first: `AnimeMatrix/Communication/` (`Device`, `Packet`, `UsbProvider`, `WindowsUsbProvider`) moved too, because `AsusKeyboard` and `AsusMouse` derive from `Device`, with `Packet`'s constructor widened `internal` → `protected` for the two subclasses still in the head; the `AuraMode` and `AuraSpeed` enums moved into `GHelper.Shared/USB/`, keeping the `GHelper.USB` namespace, since leaving them behind would have made the reference circular; and `AsusMouse`'s twelve default combo commands, spelled with `System.Windows.Forms.Keys`, now use a private `Vk` constant holder producing byte-identical command strings. `GHelper.Shared.csproj` gained `HidSharpCore` and an explicit `System.Drawing` implicit-using (the type is in the base framework; only the implicit using came from WinForms).
 
-`Peripherals/` is the cleanest large module to move next — UI references appear in only one of its 41 files (`PeripheralsProvider.cs`). `AsusACPI` remains the awkward one: it has no UI dependency at all, but five of its own instance methods reach back into the head's `Program.acpi` static, which has to be untangled before it can move.
+  `PeripheralsProvider.cs` deliberately stayed in `source/app/`: it is the one file in the folder that drives `Program.settingsForm` / `Program.inputDispatcher`, and it does so from inside its own connect/disconnect/battery flows rather than at its edges, so it needs a callback seam rather than a delegating shim. Nothing in the 40 moved files references it back.
+
+**Still to do (everything else):** `AsusACPI.cs`, `HardwareControl.cs`, `NativeMethods.cs`, `Peripherals/PeripheralsProvider.cs`, the remainder of `Helpers/`, `Mode/` and `AnimeMatrix/`, and the `Ally/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Input/`, `USB/` folders.
+
+`AsusACPI` remains the awkward one: it has no UI dependency at all, but five of its own instance methods reach back into the head's `Program.acpi` static, which has to be untangled before it can move.
 
 ---
 
@@ -144,7 +148,7 @@ Ongoing verification alongside Story 5/6 work rather than a single discrete chan
 
 **Plan:** `../implementation-plans/milestone-2/preserve-winforms-baseline-during-the-split/plan.md`
 
-**Status:** In Progress — continuous constraint, holding after slice 1.
+**Status:** In Progress — continuous constraint, holding after Story 5 slice 5.
 
 Verified after the first extraction slice: `dotnet build app\GHelper.sln -c Debug` succeeds with 0 warnings / 0 errors, and the launched app shows its normal panel with live sensor readings and writes to the shared log as before.
 
@@ -153,6 +157,8 @@ Re-checked after Story 6's tray work: `dotnet build app\GHelper.sln -c Debug` st
 Re-checked again after the `source/` repo tidy pass (2026-09-12): `dotnet build source\G-Helper.WPF.sln -c Debug` and `dotnet build source\app\GHelper.sln -c Debug` both succeed with 0 warnings / 0 errors from the new location.
 
 Re-checked after Story 5 slice 3 (the `AppConfig` move), which warranted a full runtime check because it changes config I/O: both solutions still build 0/0, and the launched head logs `Config loaded from ...\AppData\Roaming\GHelper\config.json` — the same path as before the move — then opens its panel titled `G-Helper - ROG Ally RC71L` with live sensor readings (CPU 53°C / 3200RPM, GPU 43°C / 2700RPM) and the Ally-only controller section present, which means model detection still drives the model-conditional UI. Switching Balanced → Silent → Balanced applied at the hardware level and round-tripped `performance_mode` through `config.json` correctly; comparing the file before and after the session shows `start_count` as the only changed key.
+
+Re-checked after Story 5 slice 5 (the `Peripherals/` move): both solutions still build 0/0, and the launched head opens its panel titled `G-Helper - ROG Ally RC71L` with the usual startup log and no new errors, including the `AuraMode: AuraStatic` and `Aura 1ABE` lines that exercise the relocated `AuraMode` enum. No ASUS peripheral is attached to this machine, and startup peripheral detection runs inside a fire-and-forget `Task`, so a type-load failure there would not surface — covered instead by reflecting over `GHelper.Shared.dll` and constructing all 103 concrete `IPeripheral` implementations (103 ok, 0 failed).
 
 ---
 

@@ -8,7 +8,9 @@ namespace GHelper.AnimeMatrix.Communication
 
         public byte[] Data { get; }
 
-        internal Packet(byte reportId, int packetLength, params byte[] data)
+        // protected, not internal: AnimeMatrixPacket and SlashPacket still derive from this
+        // type from the GHelper head assembly.
+        protected Packet(byte reportId, int packetLength, params byte[] data)
         {
             if (packetLength < 1)
             {

@@ -2326,23 +2326,44 @@ namespace GHelper.Peripherals.Mouse
             public string ResolveCommand() => AppConfig.GetString(ConfigKey) ?? DefaultCommand;
         }
 
-        private static string Hex(params Keys[] keys) =>
-            string.Join(" ", keys.Select(k => $"0x{(int)k:X2}"));
+        // Windows virtual-key codes for the default combo commands. These were spelled as
+        // System.Windows.Forms.Keys before this type moved into GHelper.Shared, which cannot
+        // reference WinForms; the numeric values are unchanged, so the emitted commands are too.
+        private static class Vk
+        {
+            public const byte LMenu = 0xA4;
+            public const byte LWin = 0x5B;
+            public const byte LControlKey = 0xA2;
+            public const byte LShiftKey = 0xA0;
+            public const byte Tab = 0x09;
+            public const byte Escape = 0x1B;
+            public const byte F4 = 0x73;
+            public const byte C = 0x43;
+            public const byte D = 0x44;
+            public const byte E = 0x45;
+            public const byte L = 0x4C;
+            public const byte M = 0x4D;
+            public const byte V = 0x56;
+            public const byte Z = 0x5A;
+        }
+
+        private static string Hex(params byte[] keys) =>
+            string.Join(" ", keys.Select(k => $"0x{k:X2}"));
 
         public static readonly IReadOnlyList<ComboDef> MouseCombos = new List<ComboDef>
         {
-            new(0x0068, "Alt + Tab",          Hex(Keys.LMenu,       Keys.Tab)),
-            new(0x0069, "Alt + F4",           Hex(Keys.LMenu,       Keys.F4)),
-            new(0x006A, "Win + D",            Hex(Keys.LWin,        Keys.D)),
-            new(0x006B, "Win + E",            Hex(Keys.LWin,        Keys.E)),
-            new(0x006C, "Win + L",            Hex(Keys.LWin,        Keys.L)),
-            new(0x006D, "Win + Tab",          Hex(Keys.LWin,        Keys.Tab)),
-            new(0x006E, "Win + V",            Hex(Keys.LWin,        Keys.V)),
-            new(0x006F, "Copy",               Hex(Keys.LControlKey, Keys.C)),
-            new(0x0070, "Paste",              Hex(Keys.LControlKey, Keys.V)),
-            new(0x0071, "Undo",               Hex(Keys.LControlKey, Keys.Z)),
-            new(0x0072, "Task Manager",       Hex(Keys.LControlKey, Keys.LShiftKey, Keys.Escape)),
-            new(0x0073, "Minimize All",       Hex(Keys.LWin,        Keys.M)),
+            new(0x0068, "Alt + Tab",          Hex(Vk.LMenu,       Vk.Tab)),
+            new(0x0069, "Alt + F4",           Hex(Vk.LMenu,       Vk.F4)),
+            new(0x006A, "Win + D",            Hex(Vk.LWin,        Vk.D)),
+            new(0x006B, "Win + E",            Hex(Vk.LWin,        Vk.E)),
+            new(0x006C, "Win + L",            Hex(Vk.LWin,        Vk.L)),
+            new(0x006D, "Win + Tab",          Hex(Vk.LWin,        Vk.Tab)),
+            new(0x006E, "Win + V",            Hex(Vk.LWin,        Vk.V)),
+            new(0x006F, "Copy",               Hex(Vk.LControlKey, Vk.C)),
+            new(0x0070, "Paste",              Hex(Vk.LControlKey, Vk.V)),
+            new(0x0071, "Undo",               Hex(Vk.LControlKey, Vk.Z)),
+            new(0x0072, "Task Manager",       Hex(Vk.LControlKey, Vk.LShiftKey, Vk.Escape)),
+            new(0x0073, "Minimize All",       Hex(Vk.LWin,        Vk.M)),
         };
 
         public static readonly Dictionary<ushort, ComboDef> CombosByCode =
