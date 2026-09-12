@@ -14,11 +14,11 @@ The first goal is not a redesign: it is functional parity with the existing WinF
 
 ## Status
 
-Early-stage fork. Milestone 1 (repository and context setup) is complete; the WinForms application (`app/`) is still the only working executable head. See [Current Status](#current-status) below for what's been verified.
+Early-stage fork. Milestone 1 (repository and context setup) is complete; Milestone 2 (WPF conversion and architectural split) is in progress — a `GHelper.WPF` head now exists and runs as a tray application, and the WinForms head (`source/app/`) remains the fully-featured application while shared logic is extracted incrementally. See [Current Status](#current-status) below for what's been verified.
 
 ## Getting Started
 
-Open `app/GHelper.sln` in Visual Studio and build/run `app/GHelper.csproj` — this is currently the same WinForms application as upstream G-Helper. No separate WPF project or shared class library exists yet; both are introduced in Milestone 2. See [context/wiki/build-and-run.md](context/wiki/build-and-run.md) for a command-line quickstart.
+All first-party code lives under `source/`. Open `source/G-Helper.WPF.sln` in Visual Studio to build/run all three projects, or `source/app/GHelper.sln` for just the WinForms head (the same application as upstream G-Helper, plus a reference to the new shared library). See [context/wiki/build-and-run.md](context/wiki/build-and-run.md) for a command-line quickstart.
 
 ## Current Status
 

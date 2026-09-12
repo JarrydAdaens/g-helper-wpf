@@ -126,7 +126,7 @@ Add the existing touch-keyboard behaviour to the normal bindable action list (a 
 This is the second concrete problem statement in the design document (Section 2.3) and does not depend on the full generalised binding system (Stories 11-15) to be useful on its own.
 
 **Rough scope:**
-`app/Helpers/OnScreenKeyboard.cs` / `app/Helpers/TouchscreenHelper.cs` behaviour exposed through whatever action-selection mechanism exists after Story 8/11 land; requires no parameter field.
+`source/app/Helpers/OnScreenKeyboard.cs` / `source/app/Helpers/TouchscreenHelper.cs` behaviour exposed through whatever action-selection mechanism exists after Story 8/11 land; requires no parameter field.
 
 **CER:**
 

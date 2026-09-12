@@ -86,39 +86,42 @@ G-Helper (solution)
 │   ├── battery logic
 │   └── configuration
 │
-├── G-Helper                   existing WinForms executable head (app/)
+├── G-Helper                   existing WinForms executable head (source/app/)
 │   └── references G-Helper.Shared
 │
 └── G-Helper.WPF                new WPF executable head
     └── references G-Helper.Shared
 ```
 
-**Resolved naming (Milestone 2, first extraction slice).** The component names above are product names; the concrete MSBuild projects are `GHelper.Shared/GHelper.Shared.csproj` and `GHelper.WPF/GHelper.WPF.csproj`, sitting as siblings of `app/` at the repository root. The hyphenated spelling is not usable for assemblies or namespaces, and the existing head already ships as `GHelper`, so the unhyphenated form keeps all three consistent. Both new projects target `net10.0-windows` on `x64` to match `app/GHelper.csproj`. `GHelper.Shared` deliberately sets neither `UseWindowsForms` nor `UseWPF`, which is what mechanically enforces the "no UI in the shared layer" constraint.
+**Resolved naming (Milestone 2, first extraction slice).** The component names above are product names; the concrete MSBuild projects are `GHelper.Shared/GHelper.Shared.csproj` and `GHelper.WPF/GHelper.WPF.csproj`, sitting as siblings of `app/` under `source/`. The hyphenated spelling is not usable for assemblies or namespaces, and the existing head already ships as `GHelper`, so the unhyphenated form keeps all three consistent. Both new projects target `net10.0-windows` on `x64` to match `app/GHelper.csproj`. `GHelper.Shared` deliberately sets neither `UseWindowsForms` nor `UseWPF`, which is what mechanically enforces the "no UI in the shared layer" constraint.
 
-**Solutions.** `app/GHelper.sln` is an upstream-owned file and is left untouched, so it still builds the WinForms head alone and does not become a recurring merge conflict. A new root-level `G-Helper.WPF.sln` references all three projects and is the solution to build when you want everything.
+**Solutions.** `source/app/GHelper.sln` is an upstream-owned file and is left untouched (aside from moving alongside the rest of `app/` in the repo tidy pass below), so it still builds the WinForms head alone and does not become a recurring merge conflict. A root-level `source/G-Helper.WPF.sln` references all three projects and is the solution to build when you want everything.
 
-Milestone 2 Story 5 is the extraction of the shared layer out of `app/`, done incrementally rather than as a single rewrite; as of the first slice it holds only logging, Windows-identity, and display-device helpers. The constraint that does not change is that UI-specific code must not leak into the shared layer.
+**Repo layout tidy pass (2026-09-12).** `app/`, `GHelper.Shared/`, `GHelper.WPF/`, and `G-Helper.WPF.sln` all moved one level deeper, under a new `source/` folder, so all first-party code sits under one root instead of scattered across the repository root. Every path elsewhere in this document and the wiki that used to read `app/...`, `GHelper.Shared/...`, or `GHelper.WPF/...` now reads `source/app/...`, `source/GHelper.Shared/...`, `source/GHelper.WPF/...`. `context/`, `harness/`, `docs/`, `.github/`, and the root-level config/doc files were not moved. See [upstream-source-mapping.md](wiki/upstream-source-mapping.md) for the mapping-table entry this move added.
 
-**External services and dependencies (as currently understood from the existing `app/` source, not yet fully re-verified against the extracted Shared layer):**
+Milestone 2 Story 5 is the extraction of the shared layer out of `source/app/`, done incrementally rather than as a single rewrite; as of the first slice it holds only logging, Windows-identity, and display-device helpers. The constraint that does not change is that UI-specific code must not leak into the shared layer.
 
-- ASUS ACPI/WMI hardware interface (`app/AsusACPI.cs`, `app/Helpers/AsusService.cs`) — fan curves, power modes, battery limits, keyboard/backlight control.
-- ROG Ally-specific handheld logic (`app/Handheld.cs`, `app/Ally/`) — the touch-keyboard gesture and other Ally-only behaviour this project extends.
+**External services and dependencies (as currently understood from the existing `source/app/` source, not yet fully re-verified against the extracted Shared layer):**
+
+- ASUS ACPI/WMI hardware interface (`source/app/AsusACPI.cs`, `source/app/Helpers/AsusService.cs`) — fan curves, power modes, battery limits, keyboard/backlight control.
+- ROG Ally-specific handheld logic (`source/app/Handheld.cs`, `source/app/Ally/`) — the touch-keyboard gesture and other Ally-only behaviour this project extends.
 - Windows tray/shell integration for the tray-resident application model both executable heads must preserve.
-- Controller/input handling (`app/Input/`) — the layer the new generalised binding system builds on.
+- Controller/input handling (`source/app/Input/`) — the layer the new generalised binding system builds on.
 
 ### Repository Structure
 
 ```text
 g-helper-wpf/
-|-- G-Helper.WPF.sln            root solution covering all three projects
-|-- GHelper.Shared/             reusable, UI-independent logic (extraction in progress)
-|-- GHelper.WPF/                new WPF executable head (minimal shell)
-|-- app/                        existing WinForms executable head (GHelper.csproj / GHelper.sln)
-|   |-- Ally/                   ROG Ally-specific behaviour (touch keyboard gesture, etc.)
-|   |-- Input/                  controller/input handling
-|   |-- Helpers/                cross-cutting hardware/OS helpers
-|   |-- UI/                     WinForms controls and forms
-|   `-- ...
+|-- source/
+|   |-- G-Helper.WPF.sln        root solution covering all three projects
+|   |-- GHelper.Shared/         reusable, UI-independent logic (extraction in progress)
+|   |-- GHelper.WPF/            new WPF executable head, tray-resident
+|   `-- app/                    existing WinForms executable head (GHelper.csproj / GHelper.sln)
+|       |-- Ally/               ROG Ally-specific behaviour (touch keyboard gesture, etc.)
+|       |-- Input/               controller/input handling
+|       |-- Helpers/            cross-cutting hardware/OS helpers
+|       |-- UI/                 WinForms controls and forms
+|       `-- ...
 |-- context/
 |   |-- dictations-tier-0/
 |   |-- design.md
@@ -135,7 +138,7 @@ g-helper-wpf/
 `-- README.md
 ```
 
-`GHelper.Shared/` and `GHelper.WPF/` were created by Milestone 2 (Story 5 and Story 6 respectively) alongside `app/`, which keeps its current role as the WinForms head. `GHelper.Shared` still holds only the first extraction slice. `GHelper.WPF` is now tray-resident — a tray icon with a show/hide window, a context menu, single-instance handling, its own icon and manifest — but the window behind it is still a placeholder with no real UI.
+`source/GHelper.Shared/` and `source/GHelper.WPF/` were created by Milestone 2 (Story 5 and Story 6 respectively) alongside `source/app/`, which keeps its current role as the WinForms head. `GHelper.Shared` still holds only the first extraction slice. `GHelper.WPF` is now tray-resident — a tray icon with a show/hide window, a context menu, single-instance handling, its own icon and manifest — but the window behind it is still a placeholder with no real UI.
 
 ---
 
@@ -189,11 +192,11 @@ No secrets or external-service credentials are known to be part of this applicat
 
 ### G-Helper.Shared (`GHelper.Shared`, extraction in progress)
 
-Target scope: UI-independent hardware communication, device services, power/fan/battery/RGB logic, controller/input handling, and configuration, consumed by both executable heads. Currently extracted: `Logger`, `UserIdentity`, `DeviceHelper`, and `Keystone`. Everything else still lives in `app/`, most of it blocked behind `AppConfig` (which uses WinForms `Application.StartupPath`) and `ProcessHelper` (which uses `MessageBox`/`Application.Exit`).
+Target scope: UI-independent hardware communication, device services, power/fan/battery/RGB logic, controller/input handling, and configuration, consumed by both executable heads. Currently extracted: `Logger`, `UserIdentity`, `DeviceHelper`, and `Keystone`. Everything else still lives in `source/app/`, most of it blocked behind `AppConfig` (which uses WinForms `Application.StartupPath`) and `ProcessHelper` (which uses `MessageBox`/`Application.Exit`).
 
 ### G-Helper (existing WinForms head)
 
-The current `app/` project. Remains the reference behavioural baseline throughout the split (Milestone 1 Story 3) and must keep compiling through Milestone 2 unless an explicit later decision retires it (Milestone 2 Story 7).
+The current `source/app/` project. Remains the reference behavioural baseline throughout the split (Milestone 1 Story 3) and must keep compiling through Milestone 2 unless an explicit later decision retires it (Milestone 2 Story 7).
 
 ### G-Helper.WPF (new head)
 
@@ -211,7 +214,7 @@ No specific security or privacy requirements have been identified beyond what th
 
 ### Logging
 
-Logging goes through `GHelper.Shared/Helpers/Logger.cs` (moved out of `app/Helpers/` in Milestone 2). It appends to `%APPDATA%\GHelper\log.txt`, or `%PROGRAMDATA%\GHelper\log.txt` when running as SYSTEM, trimming the file to its last 2000 lines occasionally. Both executable heads share that single file, so do not run them at the same time.
+Logging goes through `source/GHelper.Shared/Helpers/Logger.cs` (moved out of `source/app/Helpers/` in Milestone 2). It appends to `%APPDATA%\GHelper\log.txt`, or `%PROGRAMDATA%\GHelper\log.txt` when running as SYSTEM, trimming the file to its last 2000 lines occasionally. Both executable heads share that single file, so do not run them at the same time.
 
 ### Debugging
 
@@ -239,8 +242,8 @@ Not yet a defined concern. Revisit once the WPF overlay shell (Milestone 3 Story
 
 - **Resolved (Milestone 1 Story 4):** the development branch is `wpf`. The source dictation's branch-strategy diagram named it `G-Helper.WPF`, but that naming was provisional; `wpf` already holds all fork work and renaming it would only churn remote refs and local clones for no functional gain. Read `G-Helper.WPF` in the dictation as the project name, not the branch name.
 - **Resolved (Milestone 1 Story 4):** GitHub does record this repository as a fork of `seerge/g-helper` (public GitHub API, 2026-09-12: `"fork": true`, `parent`/`source` = `seerge/g-helper`). An `upstream` remote pointing at `https://github.com/seerge/g-helper.git` has been added and verified reachable, and `main` is an unmodified ancestor of `upstream/main`, so it remains a clean sync point. Details in [wiki/upstream-source-mapping.md](wiki/upstream-source-mapping.md).
-- The `G-Helper.Shared` component boundary (Section 3 of the source dictation) is a target shape, not a verified inventory. Milestone 2 Story 5 planning should derive the actual extraction boundary from the current `app/` source rather than assuming the listed components map one-to-one to existing files.
-- The exact on-disk configuration format/schema used by `app/AppConfig.cs` and related settings files has not been re-verified for this design pass.
+- The `G-Helper.Shared` component boundary (Section 3 of the source dictation) is a target shape, not a verified inventory. Milestone 2 Story 5 planning should derive the actual extraction boundary from the current `source/app/` source rather than assuming the listed components map one-to-one to existing files.
+- The exact on-disk configuration format/schema used by `source/app/AppConfig.cs` and related settings files has not been re-verified for this design pass.
 
 ---
 

@@ -31,20 +31,21 @@ Verified 2026-09-12:
 
 ## Current Mapping State
 
-`GHelper.Shared` now exists, but Milestone 2 Story 5's extraction is only partially done. **Every upstream path not listed below still maps 1:1 to the same path in this fork** — the absence of a row means "unchanged, same path".
+`GHelper.Shared` now exists, but Milestone 2 Story 5's extraction is only partially done. **Every upstream path not listed below maps to the same relative path under `source/` in this fork** — since the repo tidy pass below, the baseline transform is "prepend `source/`", not "identical". The absence of a row beyond that transform means "unchanged, just under `source/`".
 
 | Upstream path | Fork path | Status |
 | --- | --- | --- |
-| `app/Helpers/Logger.cs` | `GHelper.Shared/Helpers/Logger.cs` | Moved. One line changed: the SYSTEM check now calls `UserIdentity` instead of `ProcessHelper`. |
-| `app/Helpers/DeviceHelper.cs` | `GHelper.Shared/Helpers/DeviceHelper.cs` | Moved unchanged. |
-| `app/Helpers/Keystone.cs` | `GHelper.Shared/Helpers/Keystone.cs` | Moved unchanged. |
-| `app/Helpers/ProcessHelper.cs` | `app/Helpers/ProcessHelper.cs` + `GHelper.Shared/Helpers/UserIdentity.cs` | Split. `IsRunningAsSystem` / `IsUserAdministrator` implementations moved to `UserIdentity`; `ProcessHelper` keeps one-line delegating members so upstream call sites still resolve. The rest of `ProcessHelper` stays in `app/` because it uses WinForms `Application` and `MessageBox`. |
-| `app/GHelper.sln` | `app/GHelper.sln` (unchanged) + `G-Helper.WPF.sln` | Supplemented. The upstream solution is untouched and still builds the WinForms head alone; the new root solution builds all three projects. |
-| `app/favicon.ico`, `app/Resources/standard.ico` | unchanged, plus copies at `GHelper.WPF/favicon.ico` and `GHelper.WPF/Resources/standard.ico` | Copied, not moved. The WPF head uses the same artwork for its executable and tray icons. If upstream changes either file, mirror it into `GHelper.WPF/`. |
+| `app/**` (everything) | `source/app/**` | **Repo tidy pass (2026-09-12).** All first-party code — `app/`, `GHelper.Shared/`, `GHelper.WPF/`, and `G-Helper.WPF.sln` — moved one level deeper under a new `source/` folder, matching the layout convention of other repos in this workspace. Purely a parent-directory move done with `git mv`; no file content changed. `context/`, `harness/`, `docs/`, `.github/`, and root-level config/doc files were not moved. CI (`build.yml`, `release.yml`) and `.gitignore` were updated to match. |
+| `app/Helpers/Logger.cs` | `source/GHelper.Shared/Helpers/Logger.cs` | Moved. One line changed: the SYSTEM check now calls `UserIdentity` instead of `ProcessHelper`. |
+| `app/Helpers/DeviceHelper.cs` | `source/GHelper.Shared/Helpers/DeviceHelper.cs` | Moved unchanged. |
+| `app/Helpers/Keystone.cs` | `source/GHelper.Shared/Helpers/Keystone.cs` | Moved unchanged. |
+| `app/Helpers/ProcessHelper.cs` | `source/app/Helpers/ProcessHelper.cs` + `source/GHelper.Shared/Helpers/UserIdentity.cs` | Split. `IsRunningAsSystem` / `IsUserAdministrator` implementations moved to `UserIdentity`; `ProcessHelper` keeps one-line delegating members so upstream call sites still resolve. The rest of `ProcessHelper` stays in `app/` because it uses WinForms `Application` and `MessageBox`. |
+| `app/GHelper.sln` | `source/app/GHelper.sln` (content unchanged) + `source/G-Helper.WPF.sln` | Supplemented. The upstream solution is untouched content-wise and still builds the WinForms head alone; the sibling root solution builds all three projects. |
+| `app/favicon.ico`, `app/Resources/standard.ico` | unchanged, plus copies at `source/GHelper.WPF/favicon.ico` and `source/GHelper.WPF/Resources/standard.ico` | Copied, not moved. The WPF head uses the same artwork for its executable and tray icons. If upstream changes either file, mirror it into `source/GHelper.WPF/`. |
 
-Top-level `app/` folders as they currently stand: `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Helpers/`, `Input/`, `Mode/`, `Overlay/`, `Pawn/`, `Peripherals/`, `Properties/`, `Resources/`, `UI/`, `USB/` — all still present.
+Top-level `source/app/` folders as they currently stand: `Ally/`, `AnimeMatrix/`, `AutoUpdate/`, `Battery/`, `Display/`, `Fan/`, `Gpu/`, `Helpers/`, `Input/`, `Mode/`, `Overlay/`, `Pawn/`, `Peripherals/`, `Properties/`, `Resources/`, `UI/`, `USB/` — all still present.
 
-New fork-only paths with no upstream counterpart: `GHelper.Shared/` and `GHelper.WPF/`.
+New fork-only paths with no upstream counterpart: `source/GHelper.Shared/` and `source/GHelper.WPF/`.
 
 ## What This Page Will Track
 

@@ -13,7 +13,7 @@ metadata:
 
 ## Objective
 
-Move UI-independent logic out of `app/` into `GHelper.Shared`, one safe slice at a time, with `app/GHelper.sln` compiling and running correctly after every slice (Story 7).
+Move UI-independent logic out of `source/app/` into `GHelper.Shared`, one safe slice at a time, with `source/app/GHelper.sln` compiling and running correctly after every slice (Story 7).
 
 ## Estimates
 
@@ -21,9 +21,9 @@ Deliberately not scored per-slice. The story is open-ended by design; each slice
 
 ## Approach
 
-Slices are chosen by dependency direction, not by folder tidiness. A file can only move once nothing it calls is left behind in `app/`. Two files currently gate almost everything: `AppConfig` (uses WinForms `Application.StartupPath`, and references `AsusACPI` and `GHelper.Mode`) and `ProcessHelper` (uses `MessageBox`, `Application.Exit`, `Application.ExecutablePath`).
+Slices are chosen by dependency direction, not by folder tidiness. A file can only move once nothing it calls is left behind in `source/app/`. Two files currently gate almost everything: `AppConfig` (uses WinForms `Application.StartupPath`, and references `AsusACPI` and `GHelper.Mode`) and `ProcessHelper` (uses `MessageBox`, `Application.Exit`, `Application.ExecutablePath`).
 
-Where a type is part UI-specific and part not, split it and leave one-line delegating members behind in `app/` rather than churning every call site. Delete the shims when the remainder of the type moves.
+Where a type is part UI-specific and part not, split it and leave one-line delegating members behind in `source/app/` rather than churning every call site. Delete the shims when the remainder of the type moves.
 
 ## Slices
 
@@ -36,8 +36,8 @@ Where a type is part UI-specific and part not, split it and leave one-line deleg
 
 ## Validation (per slice)
 
-1. `dotnet build G-Helper.WPF.sln -c Debug` → 0 errors, 0 warnings.
-2. Launch `app\bin\x64\Debug\net10.0-windows\GHelper.exe`, confirm the panel opens with live sensor readings and the log is still being written.
+1. `dotnet build source\G-Helper.WPF.sln -c Debug` → 0 errors, 0 warnings.
+2. Launch `source\app\bin\x64\Debug\net10.0-windows\GHelper.exe`, confirm the panel opens with live sensor readings and the log is still being written.
 3. Update [upstream-source-mapping.md](../../../wiki/upstream-source-mapping.md) with a row for every path that stops mapping 1:1.
 
 ## Risk mitigation

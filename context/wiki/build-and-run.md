@@ -21,20 +21,22 @@ Practical how-to, distinct from [baseline-validation.md](baseline-validation.md)
 
 ## Build
 
+All first-party code lives under `source/`.
+
 ```
-dotnet build G-Helper.WPF.sln -c Debug
+dotnet build source\G-Helper.WPF.sln -c Debug
 ```
 
-Builds all three projects: `GHelper.Shared`, the WinForms head, and the WPF head. `dotnet build app\GHelper.sln -c Debug` still works and builds only the WinForms head (plus `GHelper.Shared`, which it references).
+Builds all three projects: `GHelper.Shared`, the WinForms head, and the WPF head. `dotnet build source\app\GHelper.sln -c Debug` still works and builds only the WinForms head (plus `GHelper.Shared`, which it references).
 
 Outputs:
 
-- `app\bin\x64\Debug\net10.0-windows\GHelper.exe` — WinForms head
-- `GHelper.WPF\bin\x64\Debug\net10.0-windows\GHelper.WPF.exe` — WPF head
+- `source\app\bin\x64\Debug\net10.0-windows\GHelper.exe` — WinForms head
+- `source\GHelper.WPF\bin\x64\Debug\net10.0-windows\GHelper.WPF.exe` — WPF head
 
 ## Run
 
-Launch either exe directly, or `dotnet run --project app\GHelper.csproj` / `--project GHelper.WPF\GHelper.WPF.csproj`.
+Launch either exe directly, or `dotnet run --project source\app\GHelper.csproj` / `--project source\GHelper.WPF\GHelper.WPF.csproj`.
 
 `GHelper.exe` is tray-resident. It may open its main panel on launch or start hidden, depending on saved settings; when it starts hidden its `MainWindowHandle` stays zero, so scripted automation has to find the titled top-level window of the process instead.
 
@@ -42,7 +44,7 @@ Launch either exe directly, or `dotnet run --project app\GHelper.csproj` / `--pr
 
 ## Logs
 
-Not written into the repo. Location: `%APPDATA%\GHelper\log.txt` (see `GHelper.Shared/Helpers/Logger.cs`), or `%PROGRAMDATA%\GHelper\log.txt` when running as SYSTEM.
+Not written into the repo. Location: `%APPDATA%\GHelper\log.txt` (see `source/GHelper.Shared/Helpers/Logger.cs`), or `%PROGRAMDATA%\GHelper\log.txt` when running as SYSTEM.
 
 ## Gotchas
 
