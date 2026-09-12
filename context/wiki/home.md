@@ -47,4 +47,7 @@ Wielding context thoughtfully has a direct effect on the quality of outcomes. Cl
 ## Other Pages
 
 - [baseline-validation.md](baseline-validation.md) - recorded results of validating the clean forked baseline (Milestone 1 Story 3): build, launch, and runtime behaviour on a real ROG Ally
+- [upstream-source-mapping.md](upstream-source-mapping.md) - branch/remote topology for upstream sync and the living map from upstream G-Helper paths to their fork equivalents
+- [build-and-run.md](build-and-run.md) - quick reference for building and launching the fork locally, log location, and known gotchas
+- [app-structure-overview.md](app-structure-overview.md) - current top-level layout of app/, a rough first read to seed Milestone 2 Story 5 extraction planning
 - [secrets.md](secrets.md) - placeholder guidance for documenting secret-management decisions

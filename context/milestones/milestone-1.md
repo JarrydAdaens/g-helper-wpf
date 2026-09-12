@@ -34,7 +34,7 @@ Establish a clean, reproducible fork of upstream G-Helper with the documentation
 
 ## Status
 
-In Progress — 2/4 stories complete (Stories 2 and 3 complete; Stories 1 and 4 open — see notes on each story).
+Complete — 4/4 stories complete.
 
 ---
 
@@ -42,10 +42,10 @@ In Progress — 2/4 stories complete (Stories 2 and 3 complete; Stories 1 and 4 
 
 | # | Story | Type | Complexity | Effort | Risk | Plan | Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | [Fork the original project](#story-1) | Docs/Tooling | — | — | — | *not yet generated* | Needs Verification |
+| 1 | [Fork the original project](#story-1) | Docs/Tooling | — | — | — | *not yet generated* | Complete |
 | 2 | [Initialise project context](#story-2) | Docs | — | — | — | *not yet generated* | Complete |
 | 3 | [Validate the clean baseline](#story-3) | Research | — | — | — | *not yet generated* | Complete |
-| 4 | [Establish upstream synchronisation rules](#story-4) | Docs/Tooling | — | — | — | *not yet generated* | In Progress |
+| 4 | [Establish upstream synchronisation rules](#story-4) | Docs/Tooling | — | — | — | *not yet generated* | Complete |
 
 ---
 
@@ -74,7 +74,7 @@ GitHub-level fork relationship and git remote configuration; no source changes.
 
 **Plan:** `../implementation-plans/milestone-1/fork-the-original-project/plan.md`
 
-**Status:** Needs Verification — the repository has an `origin` remote (`JarrydAdaens/g-helper-wpf`) and recent commits reference upstream `seerge/g-helper` issue numbers, but no distinct `upstream` git remote was found during initialization, and the GitHub fork relationship itself was not verified (no authenticated `gh`/API access at initialization time). See the Design [Open Questions](../design.md#open-questions).
+**Status:** Complete — verified during Story 4. The public GitHub API reports `JarrydAdaens/g-helper-wpf` as `"fork": true` with `parent` and `source` both `seerge/g-helper`, so the GitHub-level fork relationship exists. An `upstream` remote pointing at `https://github.com/seerge/g-helper.git` has since been added and fetched successfully, completing this story's remote configuration. Recorded in [../wiki/upstream-source-mapping.md](../wiki/upstream-source-mapping.md).
 
 ---
 
@@ -155,7 +155,12 @@ Branch strategy documentation; migration/source-mapping document (new file, like
 
 **Plan:** `../implementation-plans/milestone-1/establish-upstream-synchronisation-rules/plan.md`
 
-**Status:** In Progress — the repository's current branch, `wpf`, already serves as the development branch the design document calls `G-Helper.WPF` (see the naming open question in [design.md](../design.md#open-questions)), and `context/design.md` now documents the intended upstream-merge pipeline. The migration/source-mapping document itself (design doc Section 11) does not exist yet.
+**Status:** Complete — the migration/source-mapping document now exists at [../wiki/upstream-source-mapping.md](../wiki/upstream-source-mapping.md), linked from the wiki home and from Pipeline 2 in Design. It records the branch/remote topology and the current mapping state, which is trivial: `G-Helper.Shared` does not exist yet, so every upstream path still maps 1:1 to the same path under `app/`. The page gains rows as Milestone 2 Story 5 moves code.
+
+Both open questions this story carried are resolved and rewritten as decisions in the Design [Open Questions](../design.md#open-questions):
+
+- **Branch name:** `wpf` is final. The dictation's `G-Helper.WPF` was a provisional name and is the project name, not the branch name; renaming a working branch buys nothing.
+- **Upstream remote:** added and verified reachable (`git fetch upstream` succeeded). `main` is 0 ahead / 4 behind `upstream/main` — an unmodified ancestor, so it is still a clean sync point, with the 4 fork commits on `wpf`. Nothing was merged, pulled, or rebased.
 
 ---
 
@@ -175,8 +180,8 @@ Branch strategy documentation; migration/source-mapping document (new file, like
 
 ## Deferred / Follow-up Work
 
-- Verifying the GitHub fork relationship and deciding on an `upstream` remote (Story 1) is deferred pending user confirmation or authenticated GitHub access.
-- Renaming the `wpf` branch to match the design document's `G-Helper.WPF` naming, or confirming `wpf` as final, is deferred to Story 4 follow-up.
+- None outstanding. Both previously deferred items — verifying the GitHub fork relationship / adding an `upstream` remote, and settling the `wpf` branch name — were resolved in Story 4.
+- Keeping [../wiki/upstream-source-mapping.md](../wiki/upstream-source-mapping.md) current is ongoing work owned by Milestone 2 Story 5, not a follow-up for this milestone.
 
 ---
 

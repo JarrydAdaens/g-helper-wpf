@@ -40,7 +40,7 @@ The backlog (`backlog/`) is not a numbered tier. It is a staging pool — inform
 
 | Milestone | Document | Status | Why it matters | What it unlocks |
 | --- | --- | --- | --- | --- |
-| Milestone 1: Repository and Context Setup | [milestones/milestone-1.md](milestones/milestone-1.md) | In Progress | Nothing later can be trusted without a validated baseline and durable upstream-sync rules | A known-good starting point and a repeatable process for absorbing future upstream `G-Helper` changes |
+| Milestone 1: Repository and Context Setup | [milestones/milestone-1.md](milestones/milestone-1.md) | Complete | Nothing later can be trusted without a validated baseline and durable upstream-sync rules | A known-good starting point and a repeatable process for absorbing future upstream `G-Helper` changes |
 | Milestone 2: WPF Conversion and Architectural Split | [milestones/milestone-2.md](milestones/milestone-2.md) | Not Started | The WinForms/business-logic split is the load-bearing architectural change everything else depends on | A working, empty `G-Helper.WPF` executable head referencing shared logic, with the WinForms app still intact |
 | Milestone 3: WPF Equivalence and Product Changes | [milestones/milestone-3.md](milestones/milestone-3.md) | Not Started | This is where the WPF app actually becomes daily-usable and the ROG Ally overlay/binding vision is delivered | The V1 release: WPF feature parity, the left-side overlay shell, and the generalised gamepad/keyboard/mouse binding system |
 
@@ -158,7 +158,7 @@ g-helper-wpf/
 7. Update the migration document wherever the source relationship changed.
 8. Validate both build and runtime behaviour before merging into the development branch.
 
-The migration/source-mapping document itself is created in Milestone 1 Story 4 and does not exist yet.
+The migration/source-mapping document is [wiki/upstream-source-mapping.md](wiki/upstream-source-mapping.md), created by Milestone 1 Story 4. It also records the branch and remote topology steps 1 and 8 rely on.
 
 ---
 
@@ -230,8 +230,8 @@ Not yet a defined concern. Revisit once the WPF overlay shell (Milestone 3 Story
 
 ## Open Questions
 
-- The design document's branch-strategy diagram names the development branch `G-Helper.WPF`, but the repository's actual current branch performing that role is named `wpf`. Confirm whether the branch should be renamed or whether `wpf` is the accepted name going forward, and update Milestone 1 Story 4 accordingly.
-- The repository has an `origin` remote (`JarrydAdaens/g-helper-wpf`) but no distinct `upstream` git remote was found pointing at `seerge/g-helper`. Confirm whether this repository is registered as a GitHub fork of `seerge/g-helper` and whether a dedicated `upstream` remote should be added for Milestone 1 Story 1/4.
+- **Resolved (Milestone 1 Story 4):** the development branch is `wpf`. The source dictation's branch-strategy diagram named it `G-Helper.WPF`, but that naming was provisional; `wpf` already holds all fork work and renaming it would only churn remote refs and local clones for no functional gain. Read `G-Helper.WPF` in the dictation as the project name, not the branch name.
+- **Resolved (Milestone 1 Story 4):** GitHub does record this repository as a fork of `seerge/g-helper` (public GitHub API, 2026-09-12: `"fork": true`, `parent`/`source` = `seerge/g-helper`). An `upstream` remote pointing at `https://github.com/seerge/g-helper.git` has been added and verified reachable, and `main` is an unmodified ancestor of `upstream/main`, so it remains a clean sync point. Details in [wiki/upstream-source-mapping.md](wiki/upstream-source-mapping.md).
 - The `G-Helper.Shared` component boundary (Section 3 of the source dictation) is a target shape, not a verified inventory. Milestone 2 Story 5 planning should derive the actual extraction boundary from the current `app/` source rather than assuming the listed components map one-to-one to existing files.
 - The exact on-disk configuration format/schema used by `app/AppConfig.cs` and related settings files has not been re-verified for this design pass.
 
