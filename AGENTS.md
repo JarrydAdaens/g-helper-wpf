@@ -4,8 +4,8 @@ description: Mandatory repository-specific instructions that tell AI coding agen
 metadata:
   version: "3.1"
   agentic_rails_source_version: "3.1"
-  owner: "Your Name"
-  repo: "your-repo"
+  owner: "Jarryd Adaens"
+  repo: "g-helper-wpf"
 ---
 # Agent Instructions
 
